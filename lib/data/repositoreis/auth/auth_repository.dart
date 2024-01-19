@@ -1,5 +1,5 @@
 import '../../sources/auth/auth_data_source.dart';
-import '../../sources/auth/auth_model.dart';
+import '../../../model/auth/auth_model.dart';
 
 abstract class IAuthRepository {
   Future<AuthModel> login({required String username, required String password});

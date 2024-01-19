@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../legals/legal_header_screen.dart';
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -13,7 +15,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Text('profile'),
+        child: OutlinedButton(onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => LegalHeaderScreen(),
+            ),
+          );
+        }, child: Text('test',),),
       ),
     );
   }

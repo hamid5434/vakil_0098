@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:vakil_0098/data/repositoreis/auth/auth_repository.dart';
-import 'package:vakil_0098/data/services/service.dart';
+import 'package:vakil_0098/data/services/http_service.dart';
 import 'package:vakil_0098/data/sources/auth/auth_data_source.dart';
 
 import '../../common/common.dart';
@@ -22,7 +22,7 @@ class SplashScreen extends StatelessWidget {
       body: RepositoryProvider(
         create: (context) => AuthRepository(
           dataSource: AuthDataSource(
-            service: Services(),
+            service: HttpServices(),
           ),
         ),
     child: BlocProvider(

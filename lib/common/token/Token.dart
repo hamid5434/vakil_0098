@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../data/sources/auth/auth_model.dart';
+import '../../model/auth/auth_model.dart';
 import '../encrypt/encrypt.dart';
 
 class Token {

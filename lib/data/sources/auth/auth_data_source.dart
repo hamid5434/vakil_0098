@@ -1,6 +1,6 @@
 import '../../../common/app_urls.dart';
-import '../../services/service.dart';
-import 'auth_model.dart';
+import '../../services/http_service.dart';
+import '../../../model/auth/auth_model.dart';
 
 abstract class IAuthDataSource {
   Future<AuthModel> login({required String username, required String password});
@@ -9,7 +9,7 @@ abstract class IAuthDataSource {
 }
 
 class AuthDataSource implements IAuthDataSource {
-  final IServices service;
+  final IHttpServices service;
 
   AuthDataSource({required this.service});
 

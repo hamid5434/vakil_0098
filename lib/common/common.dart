@@ -86,18 +86,47 @@ class Common {
 
   static void showToast(
       {required String msg,
-      required BuildContext context,
-      Color textColor = Colors.white,
-      Color? backColor = Colors.black,
-      double fontSize = 13,
-      String pos = 'bottom'}) {
+        required BuildContext context,
+        Color textColor = Colors.white,
+        Color? backColor = Colors.black,
+        double fontSize = 13,
+        String pos = 'bottom',
+        String title = 'OK',
+        String type = 'error'}) {
+    ToastificationType toastificationType = ToastificationType.error;
+    if (type == 'warning') {
+      toastificationType = ToastificationType.warning;
+    } else if (type == 'success') {
+      toastificationType = ToastificationType.success;
+    }else if (type == 'info') {
+      toastificationType = ToastificationType.info;
+    }
 
-    Toastification().show(
+    toastification.show(
       context: context,
-      title: msg,
-
-      autoCloseDuration: const Duration(seconds: 5),
+      type: toastificationType,
+      style: ToastificationStyle.fillColored,
+      title: title,
+      description: msg,
+      alignment: Alignment.topRight,
+      autoCloseDuration: const Duration(seconds: 4),
     );
-
   }
+
+  //
+  // static void showToast(
+  //     {required String msg,
+  //     required BuildContext context,
+  //     Color textColor = Colors.white,
+  //     Color? backColor = Colors.black,
+  //     double fontSize = 13,
+  //     String pos = 'bottom'}) {
+  //
+  //   Toastification().show(
+  //     context: context,
+  //     title: msg,
+  //     autoCloseDuration: const Duration(seconds: 5),
+  //   );
+  // }
+
 }
