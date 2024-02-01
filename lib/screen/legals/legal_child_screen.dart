@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:vakil_0098/data/services/local_service.dart';
 import 'package:vakil_0098/screen/widgets/error/app_error_widget.dart';
 
@@ -32,6 +34,18 @@ class _LegalChildScreenState extends State<LegalChildScreen> {
 
   ValueNotifier<LegalChildModel?> selectedChildNotifier = ValueNotifier(null);
   ValueNotifier<LegalMadehModel?> selectedMadehNotifier = ValueNotifier(null);
+
+  final ItemScrollController itemScrollControllerHeader = ItemScrollController();
+  final ScrollOffsetController scrollOffsetControllerHeader = ScrollOffsetController();
+  final ItemPositionsListener itemPositionsListenerHeader = ItemPositionsListener.create();
+  final ScrollOffsetListener scrollOffsetListenerHeader = ScrollOffsetListener.create();
+
+  final ItemScrollController itemScrollControllerContent = ItemScrollController();
+  final ScrollOffsetController scrollOffsetControllerContent = ScrollOffsetController();
+  final ItemPositionsListener itemPositionsListenerContent = ItemPositionsListener.create();
+  final ScrollOffsetListener scrollOffsetListenerContent = ScrollOffsetListener.create();
+
+  //ItemScrollController _scrollController = ItemScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -68,18 +82,16 @@ class _LegalChildScreenState extends State<LegalChildScreen> {
                 );
               } else {
                 bloc.add(LegalMadehGetEvent(legalnumber: state.id.toString()));
-                if(selectedChildNotifier.value == null){
+                if (selectedChildNotifier.value == null) {
                   bloc.add(LegalChildSelectedEvent(id: state.id));
                   selectedChildNotifier.value = state.listLegalChild[0];
                 }
               }
-            }
-            else if(state is LegalMadehGetSuccess){
-              if( selectedMadehNotifier.value == null){
+            } else if (state is LegalMadehGetSuccess) {
+              if (selectedMadehNotifier.value == null) {
                 bloc.add(LegalMadehSelectedEvent(id: state.id));
                 selectedMadehNotifier.value = state.listMadeh[0];
               }
-
             }
           },
           child: Scaffold(
@@ -214,23 +226,24 @@ class _LegalChildScreenState extends State<LegalChildScreen> {
                           height: .8,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
-                        legalMadeh(),
-                        Expanded(
-                          child: ValueListenableBuilder(
-                            valueListenable: selectedMadehNotifier,
-                            builder: (context, value, child) {
-                              if (selectedMadehNotifier.value == null) {
-                                return const SizedBox();
-                              }
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 12),
-                                child: Text(
-                                    selectedMadehNotifier.value!.legalContent!),
-                              );
-                            },
-                          ),
-                        ),
+                        legalMadehHeader(),
+                       legalContent(),
+                        // Expanded(
+                        //   child: ValueListenableBuilder(
+                        //     valueListenable: selectedMadehNotifier,
+                        //     builder: (context, value, child) {
+                        //       if (selectedMadehNotifier.value == null) {
+                        //         return const SizedBox();
+                        //       }
+                        //       return Container(
+                        //         padding: const EdgeInsets.symmetric(
+                        //             horizontal: 8, vertical: 12),
+                        //         child: Text(
+                        //             selectedMadehNotifier.value!.legalContent!),
+                        //       );
+                        //     },
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
@@ -348,7 +361,7 @@ class _LegalChildScreenState extends State<LegalChildScreen> {
     );
   }
 
-  Widget legalMadeh() {
+  Widget legalMadehHeader() {
     return SizedBox(
       height: 45,
       // color: Colors.amber,
@@ -364,54 +377,62 @@ class _LegalChildScreenState extends State<LegalChildScreen> {
               child: CircularProgressIndicator(),
             );
           } else if (state is LegalMadehGetSuccess) {
-            return ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: state.listMadeh.length,
-              itemBuilder: (context, index) {
-                LegalMadehModel item = state.listMadeh[index];
-                return Container(
-                  //width: 120,
-                  height: 45,
-                  constraints: const BoxConstraints(minWidth: 80),
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 2, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: item.selected
-                        ? Colors.pink.shade600
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(
-                      width: .5,
-                      color: Theme.of(context).colorScheme.onSurface,
+            return Container(
+              // color: Colors.green,
+              child: ScrollablePositionedList.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: state.listMadeh.length,
+                itemBuilder: (context, index) {
+                  LegalMadehModel item = state.listMadeh[index];
+                  return Container(
+                    //width: 120,
+                    height: 45,
+                    constraints: const BoxConstraints(minWidth: 80),
+                    margin:
+                    const EdgeInsets.symmetric(horizontal: 2, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: item.selected
+                          ? Colors.pink.shade600
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(5),
+                      border: Border.all(
+                        width: .5,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      bloc.add(LegalMadehSelectedEvent(id: item.id));
-                      selectedMadehNotifier.value = item;
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Center(
-                        child: Text(
-                          'ماده ${item.legalID!}',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall!
-                              .copyWith(
-                                color: item.selected
-                                    ? Colors.white
-                                    : Theme.of(context).colorScheme.onSurface,
-                                fontWeight: FontWeight.bold,
-                              ),
+                    child: InkWell(
+                      onTap: () {
+                        bloc.add(LegalMadehSelectedEvent(id: item.id));
+                        selectedMadehNotifier.value = item;
+                        itemScrollControllerContent.jumpTo(index: index);
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Center(
+                          child: Text(
+                            'ماده ${item.legalID!}',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall!
+                                .copyWith(
+                              color: item.selected
+                                  ? Colors.white
+                                  : Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+                itemScrollController: itemScrollControllerHeader,
+                scrollOffsetController: scrollOffsetControllerHeader,
+                itemPositionsListener: itemPositionsListenerHeader,
+                scrollOffsetListener: scrollOffsetListenerHeader,
+              ),
             );
           } else if (state is LegalMadehGetFailed) {
             return Center(
@@ -438,6 +459,285 @@ class _LegalChildScreenState extends State<LegalChildScreen> {
           }
           return const SizedBox();
         },
+      ),
+    );
+  }
+
+  Widget legalContent() {
+    return  Expanded(
+      child: Container(
+        // color: Colors.grey,
+        child:
+        BlocBuilder<LegalHeaderBloc, LegalHeaderState>(
+          buildWhen: (previous, current) {
+            return current is LegalMadehGetLoading ||
+                current is LegalMadehGetSuccess ||
+                current is LegalMadehGetFailed;
+          },
+          builder: (context, state) {
+            if (state is LegalMadehGetLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (state is LegalMadehGetSuccess) {
+              return Container(
+                // color: Colors.green,
+                child: ScrollablePositionedList.builder(
+                  itemCount: state.listMadeh.length,
+                  itemBuilder: (context, index) {
+                    LegalMadehModel item =
+                    state.listMadeh[index];
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 6),
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                          color: item.selected
+                              ? Colors.pink.shade600
+                              : Theme.of(context)
+                              .colorScheme
+                              .surface,
+                          borderRadius:
+                          BorderRadius.circular(5),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .secondary
+                                  .withOpacity(.2),
+                              blurRadius: 1,
+                              spreadRadius: 1,
+                              offset: const Offset(0, 1),
+                            )
+                          ]),
+                      child: InkWell(
+                        onTap: () {
+                          bloc.add(LegalMadehSelectedEvent(id: item.id));
+                          selectedMadehNotifier.value = item;
+                          itemScrollControllerHeader.jumpTo(index: index);
+
+                        },
+                        borderRadius:
+                        BorderRadius.circular(12),
+                        child: Container(
+                          padding:
+                          const EdgeInsets.symmetric(
+                              horizontal: 8),
+                          child: Column(
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.legalContent ?? '',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall!
+                                    .copyWith(
+                                  color: item.selected
+                                      ? Colors.white
+                                      : Theme.of(
+                                      context)
+                                      .colorScheme
+                                      .onSurface,
+                                  fontWeight:
+                                  FontWeight.bold,
+                                ),
+                              ),
+                              Container(
+                                margin: const EdgeInsets
+                                    .symmetric(
+                                    horizontal: 0,
+                                    vertical: 12),
+                                width:
+                                MediaQuery.of(context)
+                                    .size
+                                    .width,
+                                height: .2,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface,
+                              ),
+                              Container(
+                                child: Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment
+                                      .center,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        ' ماده ${item.legalID}',
+                                        style: Theme.of(
+                                            context)
+                                            .textTheme
+                                            .bodySmall,
+                                      ),
+                                    ),
+                                    InkWell(
+                                      child: Container(
+                                        padding:
+                                        const EdgeInsets
+                                            .symmetric(
+                                            horizontal:
+                                            6,
+                                            vertical:
+                                            4),
+                                        decoration:
+                                        BoxDecoration(
+                                          borderRadius:
+                                          BorderRadius
+                                              .circular(
+                                              5),
+                                          border:
+                                          Border.all(
+                                            color: Theme.of(
+                                                context)
+                                                .colorScheme
+                                                .onSurface,
+                                            width: .5,
+                                          ),
+                                        ),
+                                        child: Icon(
+                                          Icons.share,
+                                          color: Theme.of(
+                                              context)
+                                              .colorScheme
+                                              .onSurface,
+                                          size: 22,
+                                        ),
+                                      ),
+                                      onTap: () {},
+                                    ),
+                                    const SizedBox(
+                                      width: 20,
+                                    ),
+                                    InkWell(
+                                      child: Container(
+                                        padding:
+                                        const EdgeInsets
+                                            .symmetric(
+                                            horizontal:
+                                            6,
+                                            vertical:
+                                            4),
+                                        decoration:
+                                        BoxDecoration(
+                                          borderRadius:
+                                          BorderRadius
+                                              .circular(
+                                              5),
+                                          border:
+                                          Border.all(
+                                            color: Theme.of(
+                                                context)
+                                                .colorScheme
+                                                .onSurface,
+                                            width: .5,
+                                          ),
+                                        ),
+                                        child: Icon(
+                                          Icons
+                                              .star_outline_outlined,
+                                          color: Theme.of(
+                                              context)
+                                              .colorScheme
+                                              .onSurface,
+                                          size: 22,
+                                        ),
+                                      ),
+                                      onTap: () {},
+                                    ),
+                                    const SizedBox(
+                                      width: 20,
+                                    ),
+                                    InkWell(
+                                      child: Container(
+                                        padding:
+                                        const EdgeInsets
+                                            .symmetric(
+                                            horizontal:
+                                            6,
+                                            vertical:
+                                            4),
+                                        decoration:
+                                        BoxDecoration(
+                                          borderRadius:
+                                          BorderRadius
+                                              .circular(
+                                              5),
+                                          border:
+                                          Border.all(
+                                            color: Theme.of(
+                                                context)
+                                                .colorScheme
+                                                .onSurface,
+                                            width: .5,
+                                          ),
+                                        ),
+                                        child: Icon(
+                                          Icons
+                                              .copy_outlined,
+                                          color: Theme.of(
+                                              context)
+                                              .colorScheme
+                                              .onSurface,
+                                          size: 22,
+                                        ),
+                                      ),
+                                      onTap: ()async {
+                                        await Clipboard.setData(ClipboardData(text: item.legalContent ?? ''));
+
+                                        },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  itemScrollController:
+                  itemScrollControllerContent,
+                  scrollOffsetController:
+                  scrollOffsetControllerContent,
+                  itemPositionsListener:
+                  itemPositionsListenerContent,
+                  scrollOffsetListener:
+                  scrollOffsetListenerContent,
+                ),
+              );
+            } else if (state is LegalMadehGetFailed) {
+              return Center(
+                child: Row(
+                  mainAxisAlignment:
+                  MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      state.exception.message,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall,
+                    ),
+                    const SizedBox(
+                      width: 16,
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        bloc.add(LegalChildsGetEvent(
+                            legalId: widget.legalsModel.id
+                                .toString()));
+                      },
+                      child: const Text('بروز خطا'),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return const SizedBox();
+          },
+        ),
       ),
     );
   }
